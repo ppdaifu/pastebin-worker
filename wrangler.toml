@@ -15,7 +15,7 @@ rules = [
 
 [[routes]]
 # Refer to https://developers.cloudflare.com/workers/wrangler/configuration/#routes
-pattern = "shz.al"
+pattern = "paste.ofdai.com"
 custom_domain = true
 
 [[kv_namespaces]]
@@ -24,7 +24,7 @@ id = "c2cd2d2b2a30473c82faea1a78923293"  # id of your KV namespace
 
 [vars]
 # must be consistent with your routes
-BASE_URL = "https://shz.al"
+BASE_URL = "https://paste.ofdai.com"
 
 # url to repo, displayed in index page
 REPO = "https://github.com/SharzyL/pastebin-worker"
