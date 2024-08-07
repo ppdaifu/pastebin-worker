@@ -2,7 +2,7 @@ name: Deploy
 on:
   push:
     branches:
-      - goshujin  # 确保这是您想要触发部署的分支名称
+      - goshujin  # 确保这是您想要触发部署的分支名称 
 jobs:
   deploy:
     runs-on: ubuntu-latest
