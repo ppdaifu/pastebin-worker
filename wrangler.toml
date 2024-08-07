@@ -33,17 +33,13 @@ REPO = "https://github.com/ppdaifu/pastebin-worker"
 FAVICON = "https://kefu.ofdai.com/static/ico1.ico"
 
 # the name displayed in TOS
-TOS_MAINTAINER = "Sharzy"
+TOS_MAINTAINER = "daifu"
 
 # the email displayed in TOS
-TOS_MAIL = "pb@shz.al"
+TOS_MAIL = "hi@ofdai.com"
 
 # Cache-Control max-age for static pages
 CACHE_STATIC_PAGE_AGE = 7200
 
 # Cache-Control max-age for static pages
 CACHE_PASTE_AGE = 600
-
-[vars.BASIC_AUTH]
-user1 = "passwd1"
-user2 = "passwd2"
