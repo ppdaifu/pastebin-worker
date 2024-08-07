@@ -45,5 +45,5 @@ CACHE_STATIC_PAGE_AGE = 7200
 CACHE_PASTE_AGE = 600
 
 [vars.BASIC_AUTH]
-user1 = "1"
-user2 = "2"
+user1 = "passwd1"
+user2 = "passwd2"
