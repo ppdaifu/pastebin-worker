@@ -11,7 +11,7 @@
 <html lang='en'>
 <body>
 <div class='px-3 my-5 markdown-body'>
-    <h5>pastebin</h5>
+    <h1>pastebin</h1>
     <!--
     <p>This is an open source pastebin deployed on Cloudflare Workers. </p>
     <p><b>Usage</b>: paste any text here, submit, then share it with URL. </p>
@@ -40,10 +40,10 @@
     </div>
 
     <div id='paste-setting-panel'>
-        <h5>Settings</h5>
+        <h2>Settings</h2>
         <div id='paste-expiration-panel' class='paste-setting-subitem-panel'>
             <input list='expiration-choices' type='text' min='60' step='1' name='paste-expiration'
-                   id='paste-expiration-input' placeholder='Expiration (secs)' value='21m'>
+                   id='paste-expiration-input' placeholder='Expiration (secs)' value='1222s'>
             <!--<label class='small-label' for='paste-expiration-input'>Units: s(seconds), m (minutes), h (hours), d (days), M (months)</label>-->
         </div>
         <div id='paste-passwd-panel' class='paste-setting-subitem-panel'>
@@ -78,7 +78,7 @@
         </div>
     </div>
     <div id='paste-uploaded-panel' class='hidden'>
-        <h5>Uploaded paste</h5>
+        <h2>Uploaded paste</h2>
         <div class='uploaded-entry'>
             <input id='uploaded-url' type='text' class='uploaded-table-text' readonly>
             <button class='copy-button'>Copy</button>
