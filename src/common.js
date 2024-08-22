@@ -1,13 +1,11 @@
-import { v4 as uuidv4 } from 'uuid';
-
 export const params = {
-  CHAR_GEN : "abcdefghijklmnopqrstuvwxyz0123456789",
-  NAME_REGEX : /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/,
-  RAND_LEN : 4,
-  PRIVATE_RAND_LEN : 24,
-  ADMIN_PATH_LEN : 24,
-  SEP : ":",
-  MAX_LEN : 25 * 1024 * 1024,
+  CHAR_GEN: "abcdefghijklmnopqrstuvwxyz0123456789",
+  NAME_REGEX: /^[a-z0-9]{3,}$/,
+  RAND_LEN: 8,  // 短链接长度（UUID 的前 8 个字符）
+  PRIVATE_RAND_LEN: 32,  // 完整 UUID 长度（不带连字符）
+  ADMIN_PATH_LEN: 32,  // 更改为匹配完整 UUID 长度
+  SEP: ":",
+  MAX_LEN: 25 * 1024 * 1024,
 }
 
 export function decode(arrayBuffer) {
@@ -22,13 +20,19 @@ export class WorkerError extends Error {
 }
 
 export function genRandStr(len) {
-  // 生成随机字符串
-  let str = uuidv4().replace(/-/g, '').slice(0, len);
-  return str;
+  return crypto.randomUUID().replace(/-/g, '').substring(0, len);
 }
 
 export function parsePath(pathname) {
-  pathname = pathname.slice(1,)  // 去掉前导斜杠
+  // 路径示例 (SEP=':')。注意：这里不处理查询字符串
+  // > example.com/~stocking
+  // > example.com/~stocking:uLE4Fhb/d3414adlW653Vx0VSVw=
+  // > example.com/abcd
+  // > example.com/abcd.jpg
+  // > example.com/abcd/myphoto.jpg
+  // > example.com/u/abcd
+  // > example.com/abcd:3ffd2e7ff214989646e006bd9ad36c58d447065e
+  pathname = pathname.slice(1,)  // 去掉开头的斜杠
 
   let role = "", ext = "", filename = undefined
   if (pathname[1] === "/") {
@@ -43,7 +47,7 @@ export function parsePath(pathname) {
     pathname = pathname.slice(0, startOfFilename)
   }
 
-  // 如果有文件名，从文件名解析扩展名，否则从路径解析扩展名
+  // 如果有文件名，从文件名解析扩展名，否则从剩余路径名解析
   if (filename) {
     let startOfExt = filename.indexOf(".")
     if (startOfExt >= 0) {
@@ -58,7 +62,7 @@ export function parsePath(pathname) {
   }
 
   let endOfShort = pathname.indexOf(params.SEP)
-  if (endOfShort < 0) endOfShort = pathname.length
+  if (endOfShort < 0) endOfShort = pathname.length // 当没有 SEP 时，passwd 为空
   const short = pathname.slice(0, endOfShort)
   const passwd = pathname.slice(endOfShort + 1)
   return { role, short, passwd, ext, filename }
@@ -67,7 +71,7 @@ export function parsePath(pathname) {
 export function parseExpiration(expirationStr) {
   const EXPIRE_REGEX = /^[\d\.]+\s*[smhdwM]?$/
   if (!EXPIRE_REGEX.test(expirationStr)) {
-    throw new WorkerError(400, `‘${expirationStr}’ is not a valid expiration specification`)
+    throw new WorkerError(400, `'${expirationStr}' 不是有效的过期时间规范`)
   }
 
   let expirationSeconds = parseFloat(expirationStr)
@@ -76,7 +80,7 @@ export function parseExpiration(expirationStr) {
   else if (lastChar === 'h') expirationSeconds *= 3600
   else if (lastChar === 'd') expirationSeconds *= 3600 * 24
   else if (lastChar === 'w') expirationSeconds *= 3600 * 24 * 7
-  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 7 * 30
+  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 30
   return expirationSeconds
 }
 
@@ -85,27 +89,22 @@ export function escapeHtml(str) {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
-    "\"": "&quot",
-    "'": "&#x27"
+    "\"": "&quot;",
+    "'": "&#x27;"
   }
-  return str.replace(/[&<>]/g, function (tag) {
+  return str.replace(/[&<>"']/g, function(tag) {
     return tagsToReplace[tag] || tag
   })
 }
 
+// 参考：https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
 export function encodeRFC5987ValueChars(str) {
-  return (
-    encodeURIComponent(str)
-      .replace(
-        /['()*]/g,
-        (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
-      )
-      .replace(/%(7C|60|5E)/g, (str, hex) =>
-        String.fromCharCode(parseInt(hex, 16)),
-      )
-  );
+  return encodeURIComponent(str)
+    .replace(/['()*]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase())
+    .replace(/%(7C|60|5E)/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 }
 
+// 从 Content-Disposition 字段解码文件名
 export function getDispFilename(fields) {
   if ('filename' in fields) {
     return fields['filename']
