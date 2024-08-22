@@ -1,6 +1,6 @@
 export const params = {
   CHAR_GEN: "abcdefghijklmnopqrstuvwxyz0123456789",
-  NAME_REGEX: /^[a-z0-9]{3,}$/,
+  NAME_REGEX: /^[a-zA-Z0-9+_\-\[\]]{3,}$/,  // 恢复原来的正则表达式
   RAND_LEN: 8,  // 短链接长度（UUID 的前 8 个字符）
   PRIVATE_RAND_LEN: 32,  // 完整 UUID 长度（不带连字符）
   ADMIN_PATH_LEN: 32,  // 更改为匹配完整 UUID 长度
@@ -80,8 +80,8 @@ export function parseExpiration(expirationStr) {
   else if (lastChar === 'h') expirationSeconds *= 3600
   else if (lastChar === 'd') expirationSeconds *= 3600 * 24
   else if (lastChar === 'w') expirationSeconds *= 3600 * 24 * 7
-  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 30
-  return expirationSeconds
+  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 30  // 更改为 30 天
+  return Math.round(expirationSeconds)  // 四舍五入到最近的整数
 }
 
 export function escapeHtml(str) {
