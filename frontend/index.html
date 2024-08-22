@@ -21,10 +21,10 @@
     <div id='paste-input-panel'>
         <div id='paste-header'>
             <div class='paste-header-tabs'>
-                <div class="paste-tab enabled" id='paste-tab-edit'>Edit paste</div>
+                <div class="paste-tab enabled" id='paste-tab-edit'>Edit</div>
                 <label for='paste-file-upload' id='paste-tab-file' class='paste-tab'>
                     <input type='file' placeholder='' id='paste-file-upload'>
-                    <label for='paste-file-upload'>Upload file</label>
+                    <label for='paste-file-upload'>Upload</label>
                 </label>
             </div>
             <div></div>
@@ -53,26 +53,26 @@
         </div>
         <div class='label-line'>
             <input type='radio' name='url-type' value='short' id='paste-url-short-radio' checked>
-            <label for='paste-url-short-radio' class='radio-label'>Generate a short random URL</label>
+            <label for='paste-url-short-radio' class='radio-label'>Short</label>
             <!--<span class='small-label'>Example: {{BASE_URL}}/BxWH</span>-->
         </div>
         <div class='label-line'>
             <input type='radio' name='url-type' value='long' id='paste-url-long-radio'>
-            <label for='paste-url-long-radio' class='radio-label'>Generate a long random URL</label>
+            <label for='paste-url-long-radio' class='radio-label'>Long</label>
             <!--<span class='small-label'>Example: {{BASE_URL}}/5HQWYNmjA4h44SmybeThXXAm</span>-->
         </div>
         <div class='label-line'>
             <input type='radio' name='url-type' value='custom' id='paste-url-custom-radio'>
-            <label for='paste-url-custom-radio' class='radio-label'>Set by your own</label>
+            <label for='paste-url-custom-radio' class='radio-label'>Customize</label>
             <div id='paste-url-input-wrapper'>
-                <span id='paste-url-input-prefix'>{{BASE_URL}}/~</span>
+                <span id='paste-url-input-prefix'>{{BASE_URL}}/</span>
                 <input type='text' id='paste-custom-url-input' minlength='3' name='custom-url'>
             </div>
             <!--<span class='small-label'>Example: {{BASE_URL}}/~stocking</span>-->
         </div>
         <div class='label-line'>
             <input type='radio' name='url-type' value='admin' id='paste-url-admin-radio'>
-            <label for='paste-url-admin-radio' class='radio-label'>Update or delete an existing paste</label>
+            <label for='paste-url-admin-radio' class='radio-label'>Modify</label>
             <input type='url' spellcheck='false' id='paste-admin-url-input'
                    name='admin-url' value='{{BASE_URL}}'>
         </div>
