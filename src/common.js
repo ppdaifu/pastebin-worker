@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export const params = {
-  RAND_LEN : 8,  // 用于短链接，UUID的前八位
-  PRIVATE_RAND_LEN : 32,  // 用于长链接，完整的UUID (去掉 "-" 符号)
+  CHAR_GEN : "abcdefghijklmnopqrstuvwxyz0123456789",
+  NAME_REGEX : /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/,
+  RAND_LEN : 4,
+  PRIVATE_RAND_LEN : 24,
   ADMIN_PATH_LEN : 24,
   SEP : ":",
   MAX_LEN : 25 * 1024 * 1024,
@@ -20,13 +22,13 @@ export class WorkerError extends Error {
 }
 
 export function genRandStr(len) {
-  // 生成UUID并转换为小写字母
-  const uuid = uuidv4().replace(/-/g, "").toLowerCase();  // 移除UUID中的"-"并转为小写
-  return uuid.slice(0, len);  // 根据传入的长度参数截取相应长度的字符串
+  // 生成随机字符串
+  let str = uuidv4().replace(/-/g, '').slice(0, len);
+  return str;
 }
 
 export function parsePath(pathname) {
-  pathname = pathname.slice(1,);  // strip the leading slash
+  pathname = pathname.slice(1,)  // 去掉前导斜杠
 
   let role = "", ext = "", filename = undefined
   if (pathname[1] === "/") {
@@ -34,12 +36,14 @@ export function parsePath(pathname) {
     pathname = pathname.slice(2)
   }
 
+  // 解析文件名
   let startOfFilename = pathname.lastIndexOf("/")
   if (startOfFilename >= 0) {
     filename = pathname.slice(startOfFilename + 1)
     pathname = pathname.slice(0, startOfFilename)
   }
 
+  // 如果有文件名，从文件名解析扩展名，否则从路径解析扩展名
   if (filename) {
     let startOfExt = filename.indexOf(".")
     if (startOfExt >= 0) {
