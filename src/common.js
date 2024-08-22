@@ -1,11 +1,12 @@
+
 export const params = {
-  CHAR_GEN: "abcdefghijklmnopqrstuvwxyz0123456789",
-  NAME_REGEX: /^[a-zA-Z0-9+_\-\[\]]{3,}$/,  // 恢复原来的正则表达式
-  RAND_LEN: 8,  // 短链接长度（UUID 的前 8 个字符）
-  PRIVATE_RAND_LEN: 32,  // 完整 UUID 长度（不带连字符）
-  ADMIN_PATH_LEN: 32,  // 更改为匹配完整 UUID 长度
-  SEP: ":",
-  MAX_LEN: 25 * 1024 * 1024,
+  CHAR_GEN : "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678",
+  NAME_REGEX : /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/,
+  RAND_LEN : 6,
+  PRIVATE_RAND_LEN : 16,
+  ADMIN_PATH_LEN : 4,
+  SEP : "",
+  MAX_LEN : 25 * 1024 * 1024,
 }
 
 export function decode(arrayBuffer) {
@@ -20,11 +21,17 @@ export class WorkerError extends Error {
 }
 
 export function genRandStr(len) {
-  return crypto.randomUUID().replace(/-/g, '').substring(0, len);
+  // TODO: switch to Web Crypto random generator
+  let str = ""
+  const numOfRand = params.CHAR_GEN.length
+  for (let i = 0; i < len; i++) {
+    str += params.CHAR_GEN.charAt(Math.floor(Math.random() * numOfRand))
+  }
+  return str
 }
 
 export function parsePath(pathname) {
-  // 路径示例 (SEP=':')。注意：这里不处理查询字符串
+  // Example of paths (SEP=':'). Note: query string is not processed here
   // > example.com/~stocking
   // > example.com/~stocking:uLE4Fhb/d3414adlW653Vx0VSVw=
   // > example.com/abcd
@@ -32,7 +39,7 @@ export function parsePath(pathname) {
   // > example.com/abcd/myphoto.jpg
   // > example.com/u/abcd
   // > example.com/abcd:3ffd2e7ff214989646e006bd9ad36c58d447065e
-  pathname = pathname.slice(1,)  // 去掉开头的斜杠
+  pathname = pathname.slice(1,)  // strip the leading slash
 
   let role = "", ext = "", filename = undefined
   if (pathname[1] === "/") {
@@ -40,14 +47,14 @@ export function parsePath(pathname) {
     pathname = pathname.slice(2)
   }
 
-  // 解析文件名
+  // parse filename
   let startOfFilename = pathname.lastIndexOf("/")
   if (startOfFilename >= 0) {
     filename = pathname.slice(startOfFilename + 1)
     pathname = pathname.slice(0, startOfFilename)
   }
 
-  // 如果有文件名，从文件名解析扩展名，否则从剩余路径名解析
+  // if having filename, parse ext from filename, else from remaining pathname
   if (filename) {
     let startOfExt = filename.indexOf(".")
     if (startOfExt >= 0) {
@@ -62,7 +69,7 @@ export function parsePath(pathname) {
   }
 
   let endOfShort = pathname.indexOf(params.SEP)
-  if (endOfShort < 0) endOfShort = pathname.length // 当没有 SEP 时，passwd 为空
+  if (endOfShort < 0) endOfShort = pathname.length // when there is no SEP, passwd is left empty
   const short = pathname.slice(0, endOfShort)
   const passwd = pathname.slice(endOfShort + 1)
   return { role, short, passwd, ext, filename }
@@ -71,7 +78,7 @@ export function parsePath(pathname) {
 export function parseExpiration(expirationStr) {
   const EXPIRE_REGEX = /^[\d\.]+\s*[smhdwM]?$/
   if (!EXPIRE_REGEX.test(expirationStr)) {
-    throw new WorkerError(400, `'${expirationStr}' 不是有效的过期时间规范`)
+    throw new WorkerError(400, `‘${expirationStr}’ is not a valid expiration specification`)
   }
 
   let expirationSeconds = parseFloat(expirationStr)
@@ -80,8 +87,8 @@ export function parseExpiration(expirationStr) {
   else if (lastChar === 'h') expirationSeconds *= 3600
   else if (lastChar === 'd') expirationSeconds *= 3600 * 24
   else if (lastChar === 'w') expirationSeconds *= 3600 * 24 * 7
-  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 30  // 更改为 30 天
-  return Math.round(expirationSeconds)  // 四舍五入到最近的整数
+  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 7 * 30
+  return expirationSeconds
 }
 
 export function escapeHtml(str) {
@@ -89,22 +96,35 @@ export function escapeHtml(str) {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
-    "\"": "&quot;",
-    "'": "&#x27;"
+    "\"": "&quot",
+    "'": "&#x27"
   }
-  return str.replace(/[&<>"']/g, function(tag) {
+  return str.replace(/[&<>]/g, function (tag) {
     return tagsToReplace[tag] || tag
   })
 }
 
-// 参考：https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+// Ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
 export function encodeRFC5987ValueChars(str) {
-  return encodeURIComponent(str)
-    .replace(/['()*]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase())
-    .replace(/%(7C|60|5E)/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+  return (
+    encodeURIComponent(str)
+      // The following creates the sequences %27 %28 %29 %2A (Note that
+      // the valid encoding of "*" is %2A, which necessitates calling
+      // toUpperCase() to properly encode). Although RFC3986 reserves "!",
+      // RFC5987 does not, so we do not need to escape it.
+      .replace(
+        /['()*]/g,
+        (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
+      )
+      // The following are not required for percent-encoding per RFC5987,
+      // so we can allow for a little better readability over the wire: |`^
+      .replace(/%(7C|60|5E)/g, (str, hex) =>
+        String.fromCharCode(parseInt(hex, 16)),
+      )
+  );
 }
 
-// 从 Content-Disposition 字段解码文件名
+// Decode the filename from a Content-Disposition fields
 export function getDispFilename(fields) {
   if ('filename' in fields) {
     return fields['filename']
