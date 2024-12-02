@@ -302,8 +302,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const input = button.parentElement.firstElementChild
   const link = input.value  // 获取原始链接
 
-  // 构建要复制的文本（加上“点击链接查看：\n\n”）
-  const textToCopy = `点击链接查看：\n\n${link}`
+  // 构建要复制的文本（加上“conten”）
+  const textToCopy = `请点击链接查看：\n\n${link}`
 
   // 将新的文本复制到剪贴板
   try {
