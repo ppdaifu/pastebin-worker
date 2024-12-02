@@ -285,7 +285,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // 如果是短链接，自动复制
       if (urlType !== 'long') {
-        const linkToCopy = `请点击链接查看：\n\n${data.url}`
+        const linkToCopy = `${data.url}?\n\n请点击链接查看。`
         
         // 调用复制函数并在复制后恢复按钮状态
         setTimeout(() => {
@@ -321,7 +321,7 @@ function putPaste() {
 
       // 如果是短链接，自动复制
       if (urlType !== 'long') {
-        const linkToCopy = `请点击链接查看：\n\n${data.url}`
+        const linkToCopy = `${data.url}?\n\n请点击链接查看。`
         
         // 延时调用复制函数
         setTimeout(() => {
