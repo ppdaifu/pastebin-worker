@@ -280,6 +280,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateButtons()
   }
 
+  /*
   $('.copy-button').on('click', event => {
     const button = event.target
     const input = button.parentElement.firstElementChild
@@ -293,6 +294,33 @@ window.addEventListener('DOMContentLoaded', () => {
       alert('Failed to copy content')
     }
   })
+*/
+
+  // 20241202
+  $('.copy-button').on('click', event => {
+  const button = event.target
+  const input = button.parentElement.firstElementChild
+  const link = input.value  // 获取原始链接
+
+  // 构建要复制的文本（加上“点击链接查看：\n\n”）
+  const textToCopy = `点击链接查看：\n\n${link}`
+
+  // 将新的文本复制到剪贴板
+  try {
+    // 使用Clipboard API直接写入内容
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      resetCopyButtons()
+      button.textContent = 'Copied'
+    })
+  } catch (err) {
+    alert('Failed to copy content')
+  }
+})
+
+
+  // end
+  
+
 
   function resetCopyButtons() {
     $('.copy-button').text('Copy')
