@@ -122,8 +122,9 @@ export async function handlePostOrPut(request, env, ctx, isPut) {
 
   function makeResponse(created) {
   return new Response(JSON.stringify(created, null, 2), {
-    headers: { "content-type": "application/json;charset=UTF-8" },
-  });
+      headers: { "content-type": "application/json;charset=UTF-8" },
+    })
+  }
 
   if (isPut) {
     const { short, passwd } = parsePath(url.pathname)
