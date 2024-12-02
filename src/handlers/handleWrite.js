@@ -121,18 +121,9 @@ export async function handlePostOrPut(request, env, ctx, isPut) {
   }
 
   function makeResponse(created) {
-  /*
   return new Response(JSON.stringify(created, null, 2), {
     headers: { "content-type": "application/json;charset=UTF-8" },
   });
-  */
-
-  const responseText = `点击链接查看：\n\n${created.url}`; // 在链接前加上你想要的文本
-  return new Response(JSON.stringify({ message: responseText, ...created }, null, 2), {
-    headers: { "content-type": "application/json;charset=UTF-8" },
-  });
-}
-
 
   if (isPut) {
     const { short, passwd } = parsePath(url.pathname)
