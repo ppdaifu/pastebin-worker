@@ -259,38 +259,38 @@ window.addEventListener('DOMContentLoaded', () => {
   
   // 2222
 
-function postPaste() {
-  prepareUploading()  // 这是上传前的准备
-  let fd = new FormData()  // 创建表单数据
+  function postPaste() {
+  prepareUploading()
+  let fd = new FormData()
 
-  // 根据不同情况，选择提交文件或内容
   if (inputType === 'file') {
     fd.append('c', file)
   } else {
     fd.append('c', pasteEditArea.prop('value'))
   }
 
-  // 处理其他参数
   if (expiration.length > 0) fd.append('e', expiration)
   if (passwd.length > 0) fd.append('s', passwd)
 
-  // 判断短链接类型
   if (urlType === 'long') fd.append('p', 'true')
   if (urlType === 'custom') fd.append('n', customName)
 
-  // 使用POST请求提交
   $.post({
     url: base_url,
     data: fd,
     processData: false,
     contentType: false,
     success: (data) => {
-      renderUploaded(data)  // 渲染上传结果
+      renderUploaded(data)
 
-      // 如果是短链接（不是长链接），自动复制
-      if (urlType !== 'long') {  
+      // 如果是短链接，自动复制
+      if (urlType !== 'long') {
         const linkToCopy = `请点击链接查看：\n\n${data.url}`
-        copyToClipboard(linkToCopy)  // 调用复制函数
+        
+        // 调用复制函数并在复制后恢复按钮状态
+        setTimeout(() => {
+          copyToClipboard(linkToCopy)  // 复制链接
+        }, 100)  // 延时确保 UI 交互不被阻塞
       }
     },
     error: handleError,
@@ -318,11 +318,15 @@ function putPaste() {
     contentType: false,
     success: (data) => {
       renderUploaded(data)
-      
-      // 如果是短链接（不是长链接），自动复制
+
+      // 如果是短链接，自动复制
       if (urlType !== 'long') {
         const linkToCopy = `请点击链接查看：\n\n${data.url}`
-        copyToClipboard(linkToCopy)  // 调用复制函数
+        
+        // 延时调用复制函数
+        setTimeout(() => {
+          copyToClipboard(linkToCopy)  // 复制链接
+        }, 100)
       }
     },
     error: handleError,
@@ -332,11 +336,12 @@ function putPaste() {
 // 复制到剪贴板的函数
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
-    alert('链接已自动复制到剪贴板！')  // 提示复制成功
+    //alert('链接已自动复制到剪贴板！')
   }).catch((err) => {
-    alert('复制失败！')  // 如果失败，提示复制失败
+    alert('复制失败！')
   })
 }
+
 
 // 2222
 
@@ -393,28 +398,26 @@ function copyToClipboard(text) {
   })
 */
 
+  
   // 20241202
   $('.copy-button').on('click', event => {
   const button = event.target
   const input = button.parentElement.firstElementChild
-  const link = input.value  // 获取原始链接
+  const link = input.value
 
-  // 构建要复制的文本（加上“conten”）
-  const textToCopy = `请点击链接查看：\n\n${link}`
+  // 构建要复制的文本
+  const textToCopy = `${link}?\n\n请点击链接查看。`
 
-  // 将新的文本复制到剪贴板
-  try {
-    // 使用Clipboard API直接写入内容
+  // 延时确保点击事件不被复制阻止
+  setTimeout(() => {
     navigator.clipboard.writeText(textToCopy).then(() => {
       resetCopyButtons()
       button.textContent = 'Copied'
+    }).catch((err) => {
+      alert('复制失败！')
     })
-  } catch (err) {
-    alert('Failed to copy content')
-  }
+  }, 100)  // 延时以确保点击复制按钮正常执行
 })
-
-
   // end
   
 
