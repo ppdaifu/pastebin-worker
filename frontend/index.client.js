@@ -194,6 +194,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   })
 
+
+  /* 2222
   function putPaste() {
     prepareUploading()
     let fd = new FormData()
@@ -218,6 +220,8 @@ window.addEventListener('DOMContentLoaded', () => {
       error: handleError,
     })
   }
+
+
 
   function postPaste() {
     prepareUploading()
@@ -246,6 +250,99 @@ window.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  2222
+  */
+
+  
+
+  
+  
+  // 2222
+
+function postPaste() {
+  prepareUploading()  // 这是上传前的准备
+  let fd = new FormData()  // 创建表单数据
+
+  // 根据不同情况，选择提交文件或内容
+  if (inputType === 'file') {
+    fd.append('c', file)
+  } else {
+    fd.append('c', pasteEditArea.prop('value'))
+  }
+
+  // 处理其他参数
+  if (expiration.length > 0) fd.append('e', expiration)
+  if (passwd.length > 0) fd.append('s', passwd)
+
+  // 判断短链接类型
+  if (urlType === 'long') fd.append('p', 'true')
+  if (urlType === 'custom') fd.append('n', customName)
+
+  // 使用POST请求提交
+  $.post({
+    url: base_url,
+    data: fd,
+    processData: false,
+    contentType: false,
+    success: (data) => {
+      renderUploaded(data)  // 渲染上传结果
+
+      // 如果是短链接（不是长链接），自动复制
+      if (urlType !== 'long') {  
+        const linkToCopy = `请点击链接查看：\n\n${data.url}`
+        copyToClipboard(linkToCopy)  // 调用复制函数
+      }
+    },
+    error: handleError,
+  })
+}
+
+function putPaste() {
+  prepareUploading()
+  let fd = new FormData()
+
+  if (inputType === 'file') {
+    fd.append('c', file)
+  } else {
+    fd.append('c', pasteEditArea.prop('value'))
+  }
+
+  if (expiration.length > 0) fd.append('e', expiration)
+  if (passwd.length > 0) fd.append('s', passwd)
+
+  $.ajax({
+    method: 'PUT',
+    url: adminUrl,
+    data: fd,
+    processData: false,
+    contentType: false,
+    success: (data) => {
+      renderUploaded(data)
+      
+      // 如果是短链接（不是长链接），自动复制
+      if (urlType !== 'long') {
+        const linkToCopy = `请点击链接查看：\n\n${data.url}`
+        copyToClipboard(linkToCopy)  // 调用复制函数
+      }
+    },
+    error: handleError,
+  })
+}
+
+// 复制到剪贴板的函数
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('链接已自动复制到剪贴板！')  // 提示复制成功
+  }).catch((err) => {
+    alert('复制失败！')  // 如果失败，提示复制失败
+  })
+}
+
+// 2222
+
+  
+  
+    
   function deletePaste() {
     prepareUploading()
     let fd = new FormData()
